@@ -24,6 +24,11 @@ class MarstekVenusPlatform {
   }
 
   configureAccessory(accessory) {
+    if (!accessory || !accessory.UUID) {
+      this.log.warn('Ignoring invalid cached accessory entry');
+      return;
+    }
+
     this.accessories.push(accessory);
   }
 
@@ -33,7 +38,8 @@ class MarstekVenusPlatform {
       await this.refreshAll();
       this.startPolling();
     } catch (error) {
-      this.log.error(`Bootstrap failed: ${error instanceof Error ? error.message : String(error)}`);
+      const detail = error instanceof Error ? `${error.message}\n${error.stack ?? ''}` : String(error);
+      this.log.error(`Bootstrap failed: ${detail}`);
     }
   }
 
@@ -62,6 +68,10 @@ class MarstekVenusPlatform {
     }
 
     const accessory = new this.api.platformAccessory(`Marstek ${name}`, uuid);
+    if (!accessory || !accessory.UUID) {
+      throw new Error(`Failed to create accessory for ${name}`);
+    }
+
     this.accessories.push(accessory);
     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     return accessory;

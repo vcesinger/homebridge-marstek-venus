@@ -176,3 +176,38 @@ test('platform ignores empty cached accessory entries', () => {
   const accessory = platform.ensureAccessory('Battery', 'battery');
   assert.equal(accessory.UUID, 'uuid-marstek-venus-battery');
 });
+
+test('platform ignores invalid configureAccessory payloads', () => {
+  const fakeApi = {
+    hap: {
+      Service: {},
+      Characteristic: {},
+      uuid: {
+        generate(value) {
+          return `uuid-${value}`;
+        },
+      },
+    },
+    platformAccessory: class FakeAccessory {
+      constructor(name, uuid) {
+        this.displayName = name;
+        this.UUID = uuid;
+      }
+    },
+    on() {},
+    registerPlatformAccessories() {},
+  };
+
+  const warnings = [];
+  const platform = new MarstekVenusPlatform(
+    { error() {}, warn(message) { warnings.push(message); } },
+    { host: '192.168.2.4', port: 30000, refreshIntervalSeconds: 60, requestTimeoutSeconds: 15 },
+    fakeApi,
+  );
+
+  platform.configureAccessory(undefined);
+  platform.configureAccessory({});
+
+  assert.equal(platform.accessories.length, 0);
+  assert.equal(warnings.length, 2);
+});
