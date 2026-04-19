@@ -1,0 +1,49 @@
+{
+  "name": "homebridge-marstek-venus",
+  "displayName": "Homebridge Marstek Venus",
+  "version": "0.1.0",
+  "description": "Homebridge plugin for Marstek Venus local API telemetry",
+  "author": "Volker Cesinger",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "config.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/vcesinger/homebridge-marstek-venus#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcesinger/homebridge-marstek-venus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vcesinger/homebridge-marstek-venus/issues"
+  },
+  "engines": {
+    "node": ">=20",
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
+  },
+  "scripts": {
+    "build": "node scripts/prepare.mjs",
+    "prepare": "node scripts/prepare.mjs",
+    "test": "node --test test/*.test.cjs"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homebridge",
+    "marstek",
+    "venus",
+    "battery",
+    "energy-storage",
+    "udp"
+  ],
+  "peerDependencies": {
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
+  }
+}
+

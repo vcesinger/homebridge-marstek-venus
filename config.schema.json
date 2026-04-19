@@ -1,0 +1,43 @@
+{
+  "pluginAlias": "HomebridgeMarstekVenus",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Configure a Marstek Venus battery using the local Open API. Enable Local API / Open API first, then enter the device IP and UDP port.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "host": {
+        "title": "Device IP / Host",
+        "type": "string",
+        "required": true
+      },
+      "port": {
+        "title": "UDP Port",
+        "type": "integer",
+        "default": 30000,
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "refreshIntervalSeconds": {
+        "title": "Polling interval (seconds)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 60,
+        "maximum": 3600
+      },
+      "requestTimeoutSeconds": {
+        "title": "Request timeout (seconds)",
+        "type": "integer",
+        "default": 15,
+        "minimum": 3,
+        "maximum": 30
+      },
+      "activateCtPowerSensor": {
+        "title": "Expose CT total power sensor",
+        "type": "boolean",
+        "default": true
+      }
+    }
+  }
+}
+
