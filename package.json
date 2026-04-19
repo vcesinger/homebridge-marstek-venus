@@ -14,6 +14,7 @@
     "dist",
     "config.schema.json",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "homepage": "https://github.com/vcesinger/homebridge-marstek-venus#readme",
