@@ -3,10 +3,11 @@ const { AccessoryBase } = require('./accessory-base.js');
 class OnlineStatusAccessory extends AccessoryBase {
   constructor(platform, accessory) {
     super(platform, accessory);
+    const occupancySensorServiceType = this.requireService('OccupancySensor');
 
     this.service = this.getOrAddService(
-      () => this.accessory.getService(this.platform.Service.OccupancySensor) ?? undefined,
-      () => this.accessory.addService(this.platform.Service.OccupancySensor),
+      () => this.accessory.getService(occupancySensorServiceType) ?? undefined,
+      () => this.accessory.addService(occupancySensorServiceType),
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.OccupancyDetected)
@@ -34,4 +35,3 @@ class OnlineStatusAccessory extends AccessoryBase {
 module.exports = {
   OnlineStatusAccessory,
 };
-

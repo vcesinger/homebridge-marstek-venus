@@ -3,13 +3,14 @@ class AccessoryBase {
     this.platform = platform;
     this.accessory = accessory;
 
-    const infoService = this.accessory.getService(this.platform.Service.AccessoryInformation)
-      ?? this.accessory.addService(this.platform.Service.AccessoryInformation);
+    const infoServiceType = this.requireService('AccessoryInformation');
+    const infoService = this.accessory.getService(infoServiceType)
+      ?? this.accessory.addService(infoServiceType);
 
     infoService
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Marstek')
       .setCharacteristic(this.platform.Characteristic.Model, 'Venus')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.UUID);
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, resolveSerialNumber(this.accessory));
   }
 
   async getSnapshot() {
@@ -24,6 +25,28 @@ class AccessoryBase {
   getOrAddService(getter, factory) {
     return getter() ?? factory();
   }
+
+  requireService(...names) {
+    for (const name of names) {
+      if (this.platform.Service && this.platform.Service[name]) {
+        return this.platform.Service[name];
+      }
+    }
+
+    throw new Error(`Missing Homebridge service type: ${names.join(' / ')}`);
+  }
+}
+
+function resolveSerialNumber(accessory) {
+  if (accessory && typeof accessory.UUID === 'string' && accessory.UUID.trim() !== '') {
+    return accessory.UUID;
+  }
+
+  if (accessory && typeof accessory.displayName === 'string' && accessory.displayName.trim() !== '') {
+    return accessory.displayName;
+  }
+
+  return 'marstek-venus';
 }
 
 module.exports = {

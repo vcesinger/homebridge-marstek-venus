@@ -211,3 +211,82 @@ test('platform ignores invalid configureAccessory payloads', () => {
   assert.equal(platform.accessories.length, 0);
   assert.equal(warnings.length, 2);
 });
+
+test('accessory base resolves Battery alias for Homebridge 2 style services', () => {
+  const { BatteryAccessory } = require('../dist/homebridge/battery-accessory.js');
+
+  class FakeServiceInstance {
+    setCharacteristic() {
+      return this;
+    }
+
+    getCharacteristic() {
+      return {
+        onGet() {},
+      };
+    }
+  }
+
+  class FakeAccessory {
+    constructor() {
+      this.UUID = 'fake-uuid';
+      this.services = new Map();
+    }
+
+    getService(serviceType) {
+      return this.services.get(serviceType) ?? null;
+    }
+
+    addService(serviceType) {
+      const instance = new FakeServiceInstance();
+      this.services.set(serviceType, instance);
+      return instance;
+    }
+  }
+
+  const fakePlatform = {
+    Service: {
+      AccessoryInformation: function AccessoryInformation() {},
+      Battery: function Battery() {},
+      TemperatureSensor: function TemperatureSensor() {},
+    },
+    Characteristic: {
+      Manufacturer: 'Manufacturer',
+      Model: 'Model',
+      SerialNumber: 'SerialNumber',
+      BatteryLevel: 'BatteryLevel',
+      ChargingState: {
+        CHARGING: 1,
+        NOT_CHARGING: 0,
+      },
+      StatusLowBattery: {
+        BATTERY_LEVEL_LOW: 1,
+        BATTERY_LEVEL_NORMAL: 0,
+      },
+      CurrentTemperature: 'CurrentTemperature',
+    },
+    client: {
+      async getSnapshot() {
+        return {
+          batterySoc: 50,
+          chargingState: 'not_charging',
+          statusLowBattery: false,
+          batteryTemperatureC: 20,
+        };
+      },
+    },
+    log: {
+      error() {},
+    },
+    api: {
+      hap: {
+        HapStatusError: class HapStatusError extends Error {},
+      },
+    },
+  };
+
+  const accessory = new FakeAccessory();
+  const instance = new BatteryAccessory(fakePlatform, accessory);
+  assert.ok(instance.batteryService);
+  assert.ok(instance.temperatureService);
+});

@@ -4,14 +4,17 @@ class BatteryAccessory extends AccessoryBase {
   constructor(platform, accessory) {
     super(platform, accessory);
 
+    const batteryServiceType = this.requireService('BatteryService', 'Battery');
+    const temperatureServiceType = this.requireService('TemperatureSensor');
+
     this.batteryService = this.getOrAddService(
-      () => this.accessory.getService(this.platform.Service.BatteryService) ?? undefined,
-      () => this.accessory.addService(this.platform.Service.BatteryService),
+      () => this.accessory.getService(batteryServiceType) ?? undefined,
+      () => this.accessory.addService(batteryServiceType),
     );
 
     this.temperatureService = this.getOrAddService(
-      () => this.accessory.getService(this.platform.Service.TemperatureSensor) ?? undefined,
-      () => this.accessory.addService(this.platform.Service.TemperatureSensor),
+      () => this.accessory.getService(temperatureServiceType) ?? undefined,
+      () => this.accessory.addService(temperatureServiceType),
     );
 
     this.batteryService.getCharacteristic(this.platform.Characteristic.BatteryLevel)
@@ -80,4 +83,3 @@ class BatteryAccessory extends AccessoryBase {
 module.exports = {
   BatteryAccessory,
 };
-

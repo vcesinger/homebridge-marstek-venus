@@ -4,10 +4,11 @@ class PowerSensorAccessory extends AccessoryBase {
   constructor(platform, accessory, key) {
     super(platform, accessory);
     this.key = key;
+    const lightSensorServiceType = this.requireService('LightSensor');
 
     this.service = this.getOrAddService(
-      () => this.accessory.getService(this.platform.Service.LightSensor) ?? undefined,
-      () => this.accessory.addService(this.platform.Service.LightSensor),
+      () => this.accessory.getService(lightSensorServiceType) ?? undefined,
+      () => this.accessory.addService(lightSensorServiceType),
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
@@ -36,4 +37,3 @@ function toLightLevel(value) {
 module.exports = {
   PowerSensorAccessory,
 };
-
