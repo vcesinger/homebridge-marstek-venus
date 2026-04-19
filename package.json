@@ -1,7 +1,7 @@
 {
   "name": "homebridge-marstek-venus",
   "displayName": "Homebridge Marstek Venus",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Homebridge plugin for Marstek Venus local API telemetry",
   "author": "Volker Cesinger",
   "license": "MIT",
