@@ -48,6 +48,9 @@ class MarstekVenusPlatform {
 
     if (this.parsedConfig.activateCtPowerSensor) {
       this.refreshables.push(new PowerSensorAccessory(this, this.ensureAccessory('CT total power', 'ct-total-power'), 'ctTotalPowerW'));
+      this.refreshables.push(new PowerSensorAccessory(this, this.ensureAccessory('CT phase A power', 'ct-phase-a-power'), 'ctPhaseAPowerW'));
+      this.refreshables.push(new PowerSensorAccessory(this, this.ensureAccessory('CT phase B power', 'ct-phase-b-power'), 'ctPhaseBPowerW'));
+      this.refreshables.push(new PowerSensorAccessory(this, this.ensureAccessory('CT phase C power', 'ct-phase-c-power'), 'ctPhaseCPowerW'));
     }
   }
 
@@ -108,4 +111,3 @@ function integer(value, fallback) {
 module.exports = {
   MarstekVenusPlatform,
 };
-

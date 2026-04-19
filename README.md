@@ -12,6 +12,7 @@ This project is intentionally starting as a read-only MVP. The goal of the first
 - battery charge and discharge power
 - grid import and export power
 - optional CT total power
+- optional CT phase A/B/C power when available
 - operating mode as a numeric automation sensor
 - online / last successful poll status
 
@@ -37,6 +38,8 @@ The MVP aligns with publicly documented / observed method names used in the Mars
 - `ES.GetMode`
 
 The commonly reported default port is `30000`.
+
+On some Venus E 3.0 firmwares, `ES.GetMode` also exposes CT telemetry such as `a_power`, `b_power`, `c_power`, `total_power`, and `ct_state`. `EM.GetStatus` can expose the same CT data separately. The MVP supports both shapes directly.
 
 ## HomeKit mapping
 
@@ -74,4 +77,3 @@ Operating mode mapping:
 - Use the latest Marstek firmware available to you.
 - If values look 1000x off on your firmware, a compatibility scaling layer may be needed in a later release.
 - This version is designed to be a clean starting point for a future control-capable plugin.
-

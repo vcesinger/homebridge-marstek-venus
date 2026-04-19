@@ -32,6 +32,64 @@ test('normalize snapshot computes signed power splits', () => {
   assert.equal(snapshot.operatingModePercent, 25);
 });
 
+test('normalize snapshot supports Venus E 3.0 field names', () => {
+  const snapshot = normalizeSnapshot({
+    online: true,
+    lastSuccessfulPoll: '2026-04-19T11:00:00.000Z',
+    device: {
+      result: {
+        device: 'VenusE 3.0',
+        ver: 148,
+        ble_mac: 'bc2a33ad1334',
+        wifi_mac: '12ef151bb0d4',
+      }
+    },
+    battery: {
+      result: {
+        soc: 11,
+        bat_temp: 26.0,
+        bat_capacity: 609.0,
+        rated_capacity: 5120.0,
+      }
+    },
+    es: {
+      result: {
+        bat_soc: 11,
+        bat_cap: 5120,
+        ongrid_power: 0,
+        offgrid_power: 0,
+        total_grid_output_energy: 32181,
+        total_grid_input_energy: 42421,
+      }
+    },
+    mode: {
+      result: {
+        mode: 'AI',
+        ct_state: 1,
+        a_power: 311,
+        b_power: -194,
+        c_power: 432,
+        total_power: 549,
+      }
+    },
+  });
+
+  assert.equal(snapshot.deviceModel, 'VenusE 3.0');
+  assert.equal(snapshot.firmwareVersion, 148);
+  assert.equal(snapshot.batterySoc, 11);
+  assert.equal(snapshot.batteryTemperatureC, 26);
+  assert.equal(snapshot.ratedCapacityWh, 5120);
+  assert.equal(snapshot.remainingCapacityWh, 609);
+  assert.equal(snapshot.gridImportPowerW, 0);
+  assert.equal(snapshot.gridExportPowerW, 0);
+  assert.equal(snapshot.ctConnected, true);
+  assert.equal(snapshot.ctPhaseAPowerW, 311);
+  assert.equal(snapshot.ctPhaseBPowerW, -194);
+  assert.equal(snapshot.ctPhaseCPowerW, 432);
+  assert.equal(snapshot.ctTotalPowerW, 549);
+  assert.equal(snapshot.operatingModePercent, 50);
+});
+
 test('normalize snapshot preserves old values on partial responses', () => {
   const previous = normalizeSnapshot({
     online: true,
@@ -54,3 +112,34 @@ test('normalize snapshot preserves old values on partial responses', () => {
   assert.equal(next.operatingModePercent, 50);
 });
 
+test('normalize snapshot prefers EM status when available', () => {
+  const snapshot = normalizeSnapshot({
+    online: true,
+    lastSuccessfulPoll: '2026-04-19T11:02:00.000Z',
+    em: {
+      result: {
+        ct_state: 1,
+        a_power: 313,
+        b_power: -214,
+        c_power: 428,
+        total_power: 527,
+        input_energy: 0,
+        output_energy: 0,
+      }
+    },
+    mode: {
+      result: {
+        mode: 'AI',
+        total_power: 549,
+      }
+    },
+  });
+
+  assert.equal(snapshot.ctConnected, true);
+  assert.equal(snapshot.ctPhaseAPowerW, 313);
+  assert.equal(snapshot.ctPhaseBPowerW, -214);
+  assert.equal(snapshot.ctPhaseCPowerW, 428);
+  assert.equal(snapshot.ctTotalPowerW, 527);
+  assert.equal(snapshot.ctInputEnergyWh, 0);
+  assert.equal(snapshot.ctOutputEnergyWh, 0);
+});

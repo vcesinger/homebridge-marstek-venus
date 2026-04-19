@@ -47,16 +47,26 @@ function normalizeSnapshot(raw, previous = null) {
 
   const batteryPower = asNumber(es.bat_power) ?? previous?.batteryPowerW ?? 0;
   const gridPower = asNumber(es.ongrid_power) ?? previous?.gridPowerW ?? 0;
-  const phaseA = asNumber(em.a_power);
-  const phaseB = asNumber(em.b_power);
-  const phaseC = asNumber(em.c_power);
-  const ctTotal = [phaseA, phaseB, phaseC].some((value) => value !== null)
-    ? [phaseA, phaseB, phaseC].reduce((sum, value) => sum + (value ?? 0), 0)
-    : previous?.ctTotalPowerW ?? null;
+  const phaseA = asNumber(em.a_power) ?? asNumber(modeResponse.a_power);
+  const phaseB = asNumber(em.b_power) ?? asNumber(modeResponse.b_power);
+  const phaseC = asNumber(em.c_power) ?? asNumber(modeResponse.c_power);
+  const ctTotal = asNumber(em.total_power) ?? asNumber(modeResponse.total_power) ?? (
+    [phaseA, phaseB, phaseC].some((value) => value !== null)
+      ? [phaseA, phaseB, phaseC].reduce((sum, value) => sum + (value ?? 0), 0)
+      : previous?.ctTotalPowerW ?? null
+  );
+  const ctInputEnergy = asNumber(em.input_energy) ?? asNumber(modeResponse.input_energy) ?? previous?.ctInputEnergyWh ?? null;
+  const ctOutputEnergy = asNumber(em.output_energy) ?? asNumber(modeResponse.output_energy) ?? previous?.ctOutputEnergyWh ?? null;
 
   const mode = extractMode(modeResponse) ?? previous?.operatingMode ?? 'Unknown';
-  const soc = clamp(asNumber(battery.soc) ?? previous?.batterySoc ?? 0, 0, 100);
+  const soc = clamp(
+    asNumber(battery.soc) ?? asNumber(es.bat_soc) ?? previous?.batterySoc ?? 0,
+    0,
+    100,
+  );
   const temperature = asNumber(battery.bat_temp) ?? previous?.batteryTemperatureC ?? 0;
+  const ratedCapacityWh = asNumber(battery.rated_capacity) ?? asNumber(es.bat_cap) ?? previous?.ratedCapacityWh ?? null;
+  const remainingCapacityWh = asNumber(battery.bat_capacity) ?? previous?.remainingCapacityWh ?? null;
 
   return {
     online: raw.online === true,
@@ -69,6 +79,8 @@ function normalizeSnapshot(raw, previous = null) {
     batteryTemperatureC: temperature,
     batteryVoltageV: asNumber(battery.bat_voltage) ?? previous?.batteryVoltageV ?? null,
     batteryCurrentA: asNumber(battery.bat_current) ?? previous?.batteryCurrentA ?? null,
+    ratedCapacityWh,
+    remainingCapacityWh,
     batteryPowerW: batteryPower,
     chargePowerW: Math.max(0, batteryPower),
     dischargePowerW: Math.max(0, -batteryPower),
@@ -76,6 +88,12 @@ function normalizeSnapshot(raw, previous = null) {
     gridImportPowerW: Math.max(0, gridPower),
     gridExportPowerW: Math.max(0, -gridPower),
     ctTotalPowerW: ctTotal,
+    ctPhaseAPowerW: phaseA,
+    ctPhaseBPowerW: phaseB,
+    ctPhaseCPowerW: phaseC,
+    ctConnected: asNumber(modeResponse.ct_state) === 1 || asNumber(em.ct_state) === 1,
+    ctInputEnergyWh: ctInputEnergy,
+    ctOutputEnergyWh: ctOutputEnergy,
     operatingMode: mode,
     operatingModePercent: modeToPercent(mode),
     statusLowBattery: soc <= 20,
@@ -113,4 +131,3 @@ module.exports = {
   normalizeSnapshot,
   modeToPercent,
 };
-
