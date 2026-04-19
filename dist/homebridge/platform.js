@@ -56,7 +56,7 @@ class MarstekVenusPlatform {
 
   ensureAccessory(name, suffix) {
     const uuid = this.api.hap.uuid.generate(`marstek-venus-${suffix}`);
-    const existing = this.accessories.find((entry) => entry.UUID === uuid);
+    const existing = this.accessories.find((entry) => entry && entry.UUID === uuid);
     if (existing) {
       return existing;
     }

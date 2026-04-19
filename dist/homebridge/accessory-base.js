@@ -3,7 +3,10 @@ class AccessoryBase {
     this.platform = platform;
     this.accessory = accessory;
 
-    this.accessory.getService(this.platform.Service.AccessoryInformation)
+    const infoService = this.accessory.getService(this.platform.Service.AccessoryInformation)
+      ?? this.accessory.addService(this.platform.Service.AccessoryInformation);
+
+    infoService
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Marstek')
       .setCharacteristic(this.platform.Characteristic.Model, 'Venus')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.UUID);
@@ -26,4 +29,3 @@ class AccessoryBase {
 module.exports = {
   AccessoryBase,
 };
-

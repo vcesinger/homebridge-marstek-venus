@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { normalizeSnapshot, modeToPercent } = require('../dist/domain/normalize.js');
+const { MarstekVenusPlatform } = require('../dist/homebridge/platform.js');
 
 test('mode mapping is stable', () => {
   assert.equal(modeToPercent('Auto'), 25);
@@ -142,4 +143,36 @@ test('normalize snapshot prefers EM status when available', () => {
   assert.equal(snapshot.ctTotalPowerW, 527);
   assert.equal(snapshot.ctInputEnergyWh, 0);
   assert.equal(snapshot.ctOutputEnergyWh, 0);
+});
+
+test('platform ignores empty cached accessory entries', () => {
+  const fakeApi = {
+    hap: {
+      Service: {},
+      Characteristic: {},
+      uuid: {
+        generate(value) {
+          return `uuid-${value}`;
+        },
+      },
+    },
+    platformAccessory: class FakeAccessory {
+      constructor(name, uuid) {
+        this.displayName = name;
+        this.UUID = uuid;
+      }
+    },
+    on() {},
+    registerPlatformAccessories() {},
+  };
+
+  const platform = new MarstekVenusPlatform(
+    { error() {} },
+    { host: '192.168.2.4', port: 30000, refreshIntervalSeconds: 60, requestTimeoutSeconds: 15 },
+    fakeApi,
+  );
+
+  platform.accessories.push(undefined);
+  const accessory = platform.ensureAccessory('Battery', 'battery');
+  assert.equal(accessory.UUID, 'uuid-marstek-venus-battery');
 });
