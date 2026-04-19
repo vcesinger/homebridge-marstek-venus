@@ -15,8 +15,8 @@
         "title": "UDP Port",
         "type": "integer",
         "default": 30000,
-        "minimum": 1,
-        "maximum": 65535
+        "placeholder": 30000,
+        "minimum": 1
       },
       "refreshIntervalSeconds": {
         "title": "Polling interval (seconds)",
@@ -40,4 +40,3 @@
     }
   }
 }
-
