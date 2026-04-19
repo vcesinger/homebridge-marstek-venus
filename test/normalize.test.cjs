@@ -290,3 +290,101 @@ test('accessory base resolves Battery alias for Homebridge 2 style services', ()
   assert.ok(instance.batteryService);
   assert.ok(instance.temperatureService);
 });
+
+test('battery accessory reads immediately from cached snapshot', async () => {
+  const { BatteryAccessory } = require('../dist/homebridge/battery-accessory.js');
+
+  class FakeCharacteristic {
+    onGet(handler) {
+      this.handler = handler;
+    }
+  }
+
+  class FakeServiceInstance {
+    constructor() {
+      this.characteristics = new Map();
+    }
+
+    setCharacteristic() {
+      return this;
+    }
+
+    getCharacteristic(name) {
+      if (!this.characteristics.has(name)) {
+        this.characteristics.set(name, new FakeCharacteristic());
+      }
+
+      return this.characteristics.get(name);
+    }
+  }
+
+  class FakeAccessory {
+    constructor() {
+      this.UUID = 'fake-uuid';
+      this.services = new Map();
+    }
+
+    getService(serviceType) {
+      return this.services.get(serviceType) ?? null;
+    }
+
+    addService(serviceType) {
+      const instance = new FakeServiceInstance();
+      this.services.set(serviceType, instance);
+      return instance;
+    }
+  }
+
+  const fakePlatform = {
+    Service: {
+      AccessoryInformation: function AccessoryInformation() {},
+      Battery: function Battery() {},
+      TemperatureSensor: function TemperatureSensor() {},
+    },
+    Characteristic: {
+      Manufacturer: 'Manufacturer',
+      Model: 'Model',
+      SerialNumber: 'SerialNumber',
+      BatteryLevel: 'BatteryLevel',
+      ChargingState: {
+        CHARGING: 1,
+        NOT_CHARGING: 0,
+      },
+      StatusLowBattery: {
+        BATTERY_LEVEL_LOW: 1,
+        BATTERY_LEVEL_NORMAL: 0,
+      },
+      CurrentTemperature: 'CurrentTemperature',
+    },
+    currentSnapshot: {
+      batterySoc: 44,
+      chargingState: 'charging',
+      statusLowBattery: false,
+      batteryTemperatureC: 23,
+    },
+    refreshAll() {
+      throw new Error('should not be called');
+    },
+    client: {
+      async getSnapshot() {
+        throw new Error('should not be called');
+      },
+    },
+    log: {
+      error() {},
+    },
+    api: {
+      hap: {
+        HapStatusError: class HapStatusError extends Error {},
+      },
+    },
+  };
+
+  const accessory = new FakeAccessory();
+  const instance = new BatteryAccessory(fakePlatform, accessory);
+  const level = instance.batteryService.getCharacteristic('BatteryLevel').handler();
+  const charging = instance.batteryService.getCharacteristic(fakePlatform.Characteristic.ChargingState).handler();
+
+  assert.equal(level, 44);
+  assert.equal(charging, 1);
+});

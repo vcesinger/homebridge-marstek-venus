@@ -12,12 +12,11 @@ class PowerSensorAccessory extends AccessoryBase {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-      .onGet(async () => {
-        try {
-          return toLightLevel((await this.getSnapshot())[this.key]);
-        } catch (error) {
-          throw this.toError(error);
-        }
+      .onGet(() => {
+        return this.readCachedValue(
+          (snapshot) => toLightLevel(snapshot[this.key]),
+          0.0001,
+        );
       });
   }
 

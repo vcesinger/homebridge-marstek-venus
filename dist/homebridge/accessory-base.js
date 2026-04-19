@@ -17,6 +17,31 @@ class AccessoryBase {
     return this.platform.client.getSnapshot();
   }
 
+  getCachedSnapshot() {
+    return this.platform.currentSnapshot ?? null;
+  }
+
+  refreshSoon() {
+    void this.platform.refreshAll().catch((error) => {
+      this.platform.log.error(error instanceof Error ? error.message : String(error));
+    });
+  }
+
+  readCachedValue(selector, fallback) {
+    const snapshot = this.getCachedSnapshot();
+    if (!snapshot) {
+      this.refreshSoon();
+      return fallback;
+    }
+
+    try {
+      const value = selector(snapshot);
+      return value ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
   toError(error) {
     this.platform.log.error(error instanceof Error ? error.message : String(error));
     return new this.platform.api.hap.HapStatusError(-70402);

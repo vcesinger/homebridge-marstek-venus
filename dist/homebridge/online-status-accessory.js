@@ -11,14 +11,13 @@ class OnlineStatusAccessory extends AccessoryBase {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.OccupancyDetected)
-      .onGet(async () => {
-        try {
-          return (await this.getSnapshot()).online
+      .onGet(() => {
+        return this.readCachedValue(
+          (snapshot) => snapshot.online
             ? this.platform.Characteristic.OccupancyDetected.OCCUPANCY_DETECTED
-            : this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED;
-        } catch (error) {
-          throw this.toError(error);
-        }
+            : this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED,
+          this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED,
+        );
       });
   }
 

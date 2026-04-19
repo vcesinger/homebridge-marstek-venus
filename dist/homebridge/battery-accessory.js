@@ -18,44 +18,33 @@ class BatteryAccessory extends AccessoryBase {
     );
 
     this.batteryService.getCharacteristic(this.platform.Characteristic.BatteryLevel)
-      .onGet(async () => {
-        try {
-          return (await this.getSnapshot()).batterySoc;
-        } catch (error) {
-          throw this.toError(error);
-        }
+      .onGet(() => {
+        return this.readCachedValue((snapshot) => snapshot.batterySoc, 0);
       });
 
     this.batteryService.getCharacteristic(this.platform.Characteristic.ChargingState)
-      .onGet(async () => {
-        try {
-          const snapshot = await this.getSnapshot();
-          return snapshot.chargingState === 'charging'
+      .onGet(() => {
+        return this.readCachedValue(
+          (snapshot) => snapshot.chargingState === 'charging'
             ? this.platform.Characteristic.ChargingState.CHARGING
-            : this.platform.Characteristic.ChargingState.NOT_CHARGING;
-        } catch (error) {
-          throw this.toError(error);
-        }
+            : this.platform.Characteristic.ChargingState.NOT_CHARGING,
+          this.platform.Characteristic.ChargingState.NOT_CHARGING,
+        );
       });
 
     this.batteryService.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
-      .onGet(async () => {
-        try {
-          return (await this.getSnapshot()).statusLowBattery
+      .onGet(() => {
+        return this.readCachedValue(
+          (snapshot) => snapshot.statusLowBattery
             ? this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
-        } catch (error) {
-          throw this.toError(error);
-        }
+            : this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL,
+          this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL,
+        );
       });
 
     this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-      .onGet(async () => {
-        try {
-          return (await this.getSnapshot()).batteryTemperatureC;
-        } catch (error) {
-          throw this.toError(error);
-        }
+      .onGet(() => {
+        return this.readCachedValue((snapshot) => snapshot.batteryTemperatureC, 0);
       });
   }
 

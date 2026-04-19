@@ -11,12 +11,8 @@ class ModeSensorAccessory extends AccessoryBase {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-      .onGet(async () => {
-        try {
-          return (await this.getSnapshot()).operatingModePercent;
-        } catch (error) {
-          throw this.toError(error);
-        }
+      .onGet(() => {
+        return this.readCachedValue((snapshot) => snapshot.operatingModePercent, 0);
       });
   }
 

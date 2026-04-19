@@ -14,6 +14,7 @@ class MarstekVenusPlatform {
     this.Characteristic = this.api.hap.Characteristic;
     this.accessories = [];
     this.refreshables = [];
+    this.currentSnapshot = null;
 
     this.parsedConfig = parseConfig(config);
     this.client = new MarstekVenusClient(log, this.parsedConfig);
@@ -85,6 +86,7 @@ class MarstekVenusPlatform {
 
   async refreshAll() {
     const snapshot = await this.client.getSnapshot(true);
+    this.currentSnapshot = snapshot;
     for (const refreshable of this.refreshables) {
       try {
         await refreshable.refresh(snapshot);
